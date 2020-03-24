@@ -2,8 +2,11 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import sys
 import argparse
+
 try:
     from PIL import Image
+    from PIL import ExifTags
+    from PIL.ExifTags import TAGS
 except ImportError:
     import Image
 
@@ -24,15 +27,29 @@ def sizeCanvas(imageHeight,imageWidth,canvasHeight,canvasWidth):
             return canvasWidth/imageRatio,canvasWidth
 # references
 # https://stackoverflow.com/questions/44816682/drawing-grid-lines-across-the-image-uisng-opencv-python
-
+# https://stackoverflow.com/questions/4228530/pil-thumbnail-is-rotating-my-image
+# https://stackoverflow.com/questions/12133612/using-pil-to-auto-rotate-picture-taken-with-cell-phone-and-accelorometer
 def griddify(filename,canvasWidth,canvasHeight):
     # Open image file
+
     image = Image.open(filename)
+    try:
+        exifdict = image._getexif()
+
+        if   exifdict[274] == 3 : 
+            image=image.transpose(180,expand=True)
+        elif exifdict[274] == 6 : 
+            image=image.rotate(-90,expand=True)
+        elif exifdict[274] == 8 : 
+            image=image.rotate(90,expand=True)
+    except:
+        print("")
     my_dpi=200.
 
     # Set up figure
     imageWidth = image.size[0]
     imageHeight = image.size[1]
+    print ("image height is %.2f and width is %.2f"%(imageHeight,imageWidth))
     fig=plt.figure(figsize=(float(image.size[0])/my_dpi,float(image.size[1])/my_dpi),dpi=my_dpi)
     ax=fig.add_subplot(111)
 
@@ -53,7 +70,7 @@ def griddify(filename,canvasWidth,canvasHeight):
     ax.yaxis.set_minor_locator(locMinor)
 
     # Add the grid
-    ax.grid(which='minor', axis='both', linestyle=':', linewidth=0.4,color='w')
+    ax.grid(which='minor', axis='both', linestyle=':', linewidth=0.6,color='r')
     ax.grid(which='major', axis='both', linestyle='-', linewidth=1,color='g')
 
     # Add the image

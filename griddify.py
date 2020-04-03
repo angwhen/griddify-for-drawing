@@ -35,7 +35,6 @@ def griddify(filename,canvasWidth,canvasHeight):
     image = Image.open(filename)
     try:
         exifdict = image._getexif()
-
         if   exifdict[274] == 3 : 
             image=image.transpose(180,expand=True)
         elif exifdict[274] == 6 : 
@@ -50,24 +49,26 @@ def griddify(filename,canvasWidth,canvasHeight):
     imageWidth = image.size[0]
     imageHeight = image.size[1]
     print ("image height is %.2f and width is %.2f"%(imageHeight,imageWidth))
-    fig=plt.figure(figsize=(float(image.size[0])/my_dpi,float(image.size[1])/my_dpi),dpi=my_dpi)
+    fig=plt.figure(figsize=(float(imageWidth)/my_dpi,float(imageHeight)/my_dpi),dpi=my_dpi)
     ax=fig.add_subplot(111)
 
     # Remove whitespace from around the image
     fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
 
     # Set the gridding interval: here we use the major tick interval
-    myInterval=imageHeight/8
+    myInterval=imageHeight/8.
     heightPieces = 8
     if (imageHeight < imageWidth):
-        myInterval = imageHeight/5
+        myInterval = imageHeight/5.
         heightPieces = 5
     loc = plticker.MultipleLocator(base=myInterval)
+    loc2 = plticker.MultipleLocator(base=myInterval)
     locMinor = plticker.MultipleLocator(base=myInterval/2)
+    locMinor2 = plticker.MultipleLocator(base=myInterval/2)
     ax.xaxis.set_major_locator(loc)
-    ax.yaxis.set_major_locator(loc)
+    ax.yaxis.set_major_locator(loc2)
     ax.xaxis.set_minor_locator(locMinor)
-    ax.yaxis.set_minor_locator(locMinor)
+    ax.yaxis.set_minor_locator(locMinor2)
 
     # Add the grid
     ax.grid(which='minor', axis='both', linestyle=':', linewidth=0.6,color='r')
@@ -77,8 +78,8 @@ def griddify(filename,canvasWidth,canvasHeight):
     ax.imshow(image)
 
     # Find number of gridsquares in x and y direction
-    nx=abs(int(float(ax.get_xlim()[1]-ax.get_xlim()[0])/float(myInterval)))
-    ny=abs(int(float(ax.get_ylim()[1]-ax.get_ylim()[0])/float(myInterval)))
+    #nx=abs(int(float(ax.get_xlim()[1]-ax.get_xlim()[0])/float(myInterval)))
+    #ny=abs(int(float(ax.get_ylim()[1]-ax.get_ylim()[0])/float(myInterval)))
 
     if (not ((canvasWidth <= canvasHeight and imageWidth <=imageHeight) or (canvasWidth > canvasHeight and imageWidth > imageHeight))):
         heightHold = canvasHeight
